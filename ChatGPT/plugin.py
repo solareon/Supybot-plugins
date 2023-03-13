@@ -101,11 +101,11 @@ class ChatGPT(callbacks.Plugin):
         model = "gpt-3.5-turbo"
 
         completion = self.get_chatgpt(irc, model, message)
-        message = ""
+        messages = ""
         for choice in completion.choices:
-            message += choice.message.content.strip()
+            messages += choice.message.content.strip()
 
-        self.send_reply(self, irc, message)
+        self.send_reply(self, irc, messages)
 
     chatgpt = wrap(chatgpt, ['text'])
 
@@ -117,11 +117,11 @@ class ChatGPT(callbacks.Plugin):
 
         completion = self.get_completion(irc, model, message)
 
-        message = ""
+        messages = ""
         for choice in completion.choices:
-            message += choice.text.strip()
+            messages += choice.text.strip()
 
-        self.send_reply(self, irc, message)
+        self.send_reply(self, irc, messages)
 
     gpt3 = wrap(gpt3, ['text'])
 
