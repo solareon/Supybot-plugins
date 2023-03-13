@@ -73,6 +73,27 @@ class ChatGPT(callbacks.Plugin):
         except Exception:
             raise
 
+    def send_reply(self, irc, msg, args, message):
+        if len(message) > 400:
+            last_space_index = message[:400].rfind(" ")+1
+            last_dot_index = message[:400].rfind(".")+1
+            split_index = max(last_space_index, last_dot_index)
+            if split_index == -1: # If no space or dot found before the 400th character
+                split_index = 399 # Split at the 399th character
+            irc.reply(message[:split_index].strip())
+            remaining_message = message[split_index:]
+            while len(remaining_message) > 400:
+                last_space_index = message[:400].rfind(" ")+1
+                last_dot_index = message[:400].rfind(".")+1
+                split_index = max(last_space_index, last_dot_index)
+                if split_index == -1:
+                    split_index = 399
+                irc.reply(remaining_message[:split_index].strip(), prefixNick=False)
+                remaining_message = remaining_message[split_index:]
+            irc.reply(remaining_message.strip(), prefixNick=False)
+        else:
+            irc.reply(message)
+
     def chatgpt(self, irc, msg, args, message):
         """<prompt>
 
@@ -84,30 +105,14 @@ class ChatGPT(callbacks.Plugin):
         for choice in completion.choices:
             message += choice.message.content.strip()
 
-        if len(message) > 400:
-            last_space_index = message[:400].rfind(" ")
-            last_dot_index = message[:400].rfind(".")
-            split_index = max(last_space_index, last_dot_index)
-            if split_index == -1: # If no space or dot found before the 400th character
-                split_index = 399 # Split at the 399th character
-            irc.reply(message[:split_index], prefixNick=False)
-            remaining_message = message[split_index:]
-            while len(remaining_message) > 400:
-                split_index = remaining_message[:400].rfind(" ")
-                if split_index == -1:
-                    split_index = 399
-                irc.reply(remaining_message[:split_index], prefixNick=False)
-                remaining_message = remaining_message[split_index:]
-            irc.reply(remaining_message, prefixNick=False)
-        else:
-            irc.reply(message, prefixNick=False)
+        self.send_reply(self, irc, msg, args, message)
 
     chatgpt = wrap(chatgpt, ['text'])
 
     def gpt3(self, irc, msg, args, message):
         """<prompt>
 
-        Returns ChatGPT response to prompt"""
+        Returns text-davinci-003 response to prompt"""
         model = "text-davinci-003"
 
         completion = self.get_completion(irc, model, message)
@@ -116,23 +121,7 @@ class ChatGPT(callbacks.Plugin):
         for choice in completion.choices:
             message += choice.text.strip()
 
-        if len(message) > 400:
-            last_space_index = message[:400].rfind(" ")
-            last_dot_index = message[:400].rfind(".")
-            split_index = max(last_space_index, last_dot_index)
-            if split_index == -1: # If no space or dot found before the 400th character
-                split_index = 399 # Split at the 399th character
-            irc.reply(message[:split_index], prefixNick=False)
-            remaining_message = message[split_index:]
-            while len(remaining_message) > 400:
-                split_index = remaining_message[:400].rfind(" ")
-                if split_index == -1:
-                    split_index = 399
-                irc.reply(remaining_message[:split_index], prefixNick=False)
-                remaining_message = remaining_message[split_index:]
-            irc.reply(remaining_message, prefixNick=False)
-        else:
-            irc.reply(message, prefixNick=False)
+        self.send_reply(self, irc, msg, args, message)
 
     gpt3 = wrap(gpt3, ['text'])
 
