@@ -56,10 +56,7 @@ class ChatGPT(callbacks.Plugin):
         
         try:
             completion = openai.Completion.create(model=model,prompt=message,max_tokens=max_tokens)
-            response = ""
-            for choice in completion.choices:
-                response += choice.text
-            return response
+            return completion
         except Exception:
             raise
 
@@ -72,10 +69,7 @@ class ChatGPT(callbacks.Plugin):
         
         try:
             completion = openai.ChatCompletion.create(model=model,messages=[{"role": "user", "content": message}])
-            response = ""
-            for choice in completion.choices:
-                response += choice.message.content
-            return response
+            return completion
         except Exception:
             raise
 
@@ -85,9 +79,9 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "gpt-3.5-turbo"
 
-        message = self.get_chatgpt(irc, model, message).strip()
-
-        irc.reply(message)
+        messages = self.get_chatgpt(irc, model, message).strip()
+        for choice in messages.choices:
+            irc.reply(choice.message.content, prefixNick=False)
 
     chatgpt = wrap(chatgpt, ['text'])
 
@@ -97,9 +91,9 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "text-davinci-003"
 
-        message = self.get_completion(irc, model, message).strip()
-
-        irc.reply(message)
+        messages = self.get_completion(irc, model, message).strip()
+        for choice in messages.choices:
+            irc.reply(choice.text, prefixNick=False)
 
     gpt3 = wrap(chatgpt, ['text'])
 
