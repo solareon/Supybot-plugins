@@ -47,16 +47,15 @@ class ChatGPT(callbacks.Plugin):
     """A plugin to provide responses via ChatGPT's API"""
     threaded = True
 
-    def get_completion(self, irc, session, model, message):
-        session.api_key = self.registryValue('openai.api.key')
+    def get_completion(self, irc, model, message):
+        api_key = self.registryValue('openai.api.key')
         max_tokens = self.registryValue('openai.maxtokens')
-        user = irc.user
-        if not session.api_key:
+        if not api_key:
             irc.error('Missing API key, ask the admin to get one and set '
                       'supybot.plugins.ChatGPT.openai.api.key', Raise=True)
         
         try:
-            return session.create(model=model,prompt=message,max_tokens=max_tokens)
+            return openai.Completion.create(model=model,prompt=message,max_tokens=max_tokens)
         except Exception:
             raise
 
@@ -66,8 +65,7 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "gpt-3.5-turbo"
 
-        with openai.Completion() as session:
-            message = self.get_completion(irc, session, model, message)
+        message = self.get_completion(irc, model, message)
 
         irc.reply(message)
 
