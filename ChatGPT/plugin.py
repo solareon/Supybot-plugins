@@ -73,7 +73,7 @@ class ChatGPT(callbacks.Plugin):
         except Exception:
             raise
 
-    def send_reply(self, irc, message):
+    def send_reply(self, irc, args, message):
         if len(message) > 400:
             last_space_index = message[:400].rfind(" ")+1
             last_dot_index = message[:400].rfind(".")+1
