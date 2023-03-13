@@ -81,7 +81,7 @@ class ChatGPT(callbacks.Plugin):
 
         messages = self.get_chatgpt(irc, model, message)
         for choice in messages.choices:
-            irc.reply(choice.message.content.strip(), prefixNick=False)
+            irc.reply(choice.message.content.strip(), prefixNick=False, noLengthCheck=True)
 
     chatgpt = wrap(chatgpt, ['text'])
 
@@ -93,7 +93,7 @@ class ChatGPT(callbacks.Plugin):
 
         messages = self.get_completion(irc, model, message)
         for choice in messages.choices:
-            irc.reply(choice.text.strip(), prefixNick=False)
+            irc.reply(choice.text.strip(), prefixNick=False, noLengthCheck=True)
 
     gpt3 = wrap(chatgpt, ['text'])
 
