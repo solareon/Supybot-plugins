@@ -79,9 +79,9 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "gpt-3.5-turbo"
 
-        messages = self.get_chatgpt(irc, model, message).strip()
+        messages = self.get_chatgpt(irc, model, message)
         for choice in messages.choices:
-            irc.reply(choice.message.content, prefixNick=False)
+            irc.reply(choice.message.content.strip(), prefixNick=False)
 
     chatgpt = wrap(chatgpt, ['text'])
 
@@ -91,9 +91,9 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "text-davinci-003"
 
-        messages = self.get_completion(irc, model, message).strip()
+        messages = self.get_completion(irc, model, message)
         for choice in messages.choices:
-            irc.reply(choice.text, prefixNick=False)
+            irc.reply(choice.text.strip(), prefixNick=False)
 
     gpt3 = wrap(chatgpt, ['text'])
 
