@@ -59,6 +59,19 @@ class ChatGPT(callbacks.Plugin):
         except Exception:
             raise
 
+    def get_chatgpt(self, irc, model, message):
+        openai.api_key = self.registryValue('openai.api.key')
+        max_tokens = self.registryValue('openai.maxtokens')
+        if not openai.api_key:
+            irc.error('Missing API key, ask the admin to get one and set '
+                      'supybot.plugins.ChatGPT.openai.api.key', Raise=True)
+        
+        try:
+            completion = openai.ChatCompletion.create(model=model,messages=[{"role": "user", "content": message}])
+            return completion.choices[0].message
+        except Exception:
+            raise
+
     def chatgpt(self, irc, msg, args, message):
         """<prompt>
 
