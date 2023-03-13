@@ -48,9 +48,9 @@ class ChatGPT(callbacks.Plugin):
     threaded = True
 
     def get_completion(self, irc, model, message):
-        api_key = self.registryValue('openai.api.key')
+        openai.api_key = self.registryValue('openai.api.key')
         max_tokens = self.registryValue('openai.maxtokens')
-        if not api_key:
+        if not openai.api_key:
             irc.error('Missing API key, ask the admin to get one and set '
                       'supybot.plugins.ChatGPT.openai.api.key', Raise=True)
         
