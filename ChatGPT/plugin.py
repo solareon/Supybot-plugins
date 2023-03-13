@@ -75,22 +75,22 @@ class ChatGPT(callbacks.Plugin):
 
     def send_reply(self, irc, message):
         if len(message) > 400:
-            last_space_index = message[:400].rfind(" ")+1
-            last_dot_index = message[:400].rfind(".")+1
+            last_space_index = message[:400].rfind(" ")
+            last_dot_index = message[:400].rfind(".")
             split_index = max(last_space_index, last_dot_index)
             if split_index == -1: # If no space or dot found before the 400th character
                 split_index = 399 # Split at the 399th character
-            irc.reply(message[:split_index].strip())
+            irc.reply(message[:split_index])
             remaining_message = message[split_index:]
             while len(remaining_message) > 400:
-                last_space_index = message[:400].rfind(" ")+1
-                last_dot_index = message[:400].rfind(".")+1
+                last_space_index = message[:400].rfind(" ")
+                last_dot_index = message[:400].rfind(".")
                 split_index = max(last_space_index, last_dot_index)
                 if split_index == -1:
                     split_index = 399
-                irc.reply(remaining_message[:split_index].strip(), prefixNick=False)
+                irc.reply(remaining_message[:split_index], prefixNick=False)
                 remaining_message = remaining_message[split_index:]
-            irc.reply(remaining_message.strip(), prefixNick=False)
+            irc.reply(remaining_message, prefixNick=False)
         else:
             irc.reply(message)
 
@@ -104,6 +104,7 @@ class ChatGPT(callbacks.Plugin):
         messages = ""
         for choice in completion.choices:
             messages += choice.message.content.strip()
+        messages = messages.replace('\n', ' ')
 
         self.send_reply(irc, messages)
 
@@ -116,10 +117,10 @@ class ChatGPT(callbacks.Plugin):
         model = "text-davinci-003"
 
         completion = self.get_completion(irc, model, message)
-
         messages = ""
         for choice in completion.choices:
             messages += choice.text.strip()
+        messages = messages.replace('\n', ' ')
 
         self.send_reply(irc, messages)
 
