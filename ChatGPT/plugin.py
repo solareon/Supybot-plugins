@@ -55,7 +55,8 @@ class ChatGPT(callbacks.Plugin):
                       'supybot.plugins.ChatGPT.openai.api.key', Raise=True)
         
         try:
-            return openai.Completion.create(model=model,prompt=message,max_tokens=max_tokens)
+            completion = openai.Completion.create(model=model,prompt=message,max_tokens=max_tokens)
+            return completion.choices[0].text
         except Exception:
             raise
 
@@ -68,7 +69,7 @@ class ChatGPT(callbacks.Plugin):
         
         try:
             completion = openai.ChatCompletion.create(model=model,messages=[{"role": "user", "content": message}])
-            return completion.choices[0].message
+            return completion.choices[0].message.content
         except Exception:
             raise
 
@@ -78,11 +79,25 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "gpt-3.5-turbo"
 
-        message = self.get_chatgpt(irc, model, message)
+        message = self.get_chatgpt(irc, model, message).strip()
 
         irc.reply(message)
 
     chatgpt = wrap(chatgpt, ['text'])
+
+    def gpt3(self, irc, msg, args, message):
+        """<prompt>
+
+        Returns ChatGPT response to prompt"""
+        model = "text-davinci-003"
+
+        message = self.get_completion(irc, model, message).strip()
+
+        irc.reply(message)
+
+    gpt3 = wrap(chatgpt, ['text'])
+
+    
 
 Class = ChatGPT
 
