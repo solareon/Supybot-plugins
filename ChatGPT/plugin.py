@@ -73,7 +73,7 @@ class ChatGPT(callbacks.Plugin):
         except Exception:
             raise
 
-    def send_reply(self, irc, args, message):
+    def send_reply(self, irc, message):
         if len(message) > 400:
             last_space_index = message[:400].rfind(" ")+1
             last_dot_index = message[:400].rfind(".")+1
@@ -105,7 +105,7 @@ class ChatGPT(callbacks.Plugin):
         for choice in completion.choices:
             messages += choice.message.content.strip()
 
-        self.send_reply(self, irc, messages)
+        self.send_reply(irc, messages)
 
     chatgpt = wrap(chatgpt, ['text'])
 
@@ -121,7 +121,7 @@ class ChatGPT(callbacks.Plugin):
         for choice in completion.choices:
             messages += choice.text.strip()
 
-        self.send_reply(self, irc, messages)
+        self.send_reply(irc, messages)
 
     gpt3 = wrap(gpt3, ['text'])
 
