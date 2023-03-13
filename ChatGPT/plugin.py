@@ -56,7 +56,10 @@ class ChatGPT(callbacks.Plugin):
         
         try:
             completion = openai.Completion.create(model=model,prompt=message,max_tokens=max_tokens)
-            return completion.choices[0].text
+            response = ""
+            for choice in completion.choices:
+                response += choice.text
+            return response
         except Exception:
             raise
 
@@ -69,7 +72,10 @@ class ChatGPT(callbacks.Plugin):
         
         try:
             completion = openai.ChatCompletion.create(model=model,messages=[{"role": "user", "content": message}])
-            return completion.choices[0].message.content
+            response = ""
+            for choice in completion.choices:
+                response += choice.message.content
+            return response
         except Exception:
             raise
 
