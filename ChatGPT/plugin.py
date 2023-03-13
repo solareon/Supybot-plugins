@@ -78,7 +78,7 @@ class ChatGPT(callbacks.Plugin):
         Returns ChatGPT response to prompt"""
         model = "gpt-3.5-turbo"
 
-        message = self.get_completion(irc, model, message)
+        message = self.get_chatgpt(irc, model, message)
 
         irc.reply(message)
 
