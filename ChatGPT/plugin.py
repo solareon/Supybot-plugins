@@ -71,7 +71,7 @@ class ChatGPT(callbacks.Plugin):
 
         irc.reply(message)
 
-    chatgpt = wrap(chatgpt, ['something'])
+    chatgpt = wrap(chatgpt, ['text'])
 
 Class = ChatGPT
 
