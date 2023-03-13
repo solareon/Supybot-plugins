@@ -36,7 +36,7 @@ from supybot import utils, plugins, ircutils, callbacks
 from supybot.commands import *
 try:
     from supybot.i18n import PluginInternationalization
-    _ = PluginInternationalization('Stocks')
+    _ = PluginInternationalization('ChatGPT')
 except ImportError:
     # Placeholder that allows to run the plugin on a bot
     # without the i18n module
