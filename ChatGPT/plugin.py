@@ -159,12 +159,11 @@ class ChatGPT(callbacks.Plugin):
 
         Returns Codex response to prompt"""
         model = "code-davinci-002"
-
+        message = "/* {message} */".format(message=message)
         completion = self.get_completion(irc, model, message)
         messages = ""
         for choice in completion.choices:
-            messages += choice.text.strip()
-        #messages = messages.replace('\n', ' ')
+            messages += choice.text
 
         paste = self.get_paste(irc, messages)
         irc.reply(paste)
