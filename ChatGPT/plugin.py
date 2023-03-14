@@ -49,9 +49,8 @@ class ChatGPT(callbacks.Plugin):
     """A plugin to provide responses via ChatGPT's API"""
     threaded = True
 
-    def get_completion(self, irc, model, message):
+    def get_completion(self, irc, model, max_tokens, message):
         openai.api_key = self.registryValue('openai.api.key')
-        max_tokens = self.registryValue('openai.maxtokens')
         if not openai.api_key:
             irc.error('Missing API key, ask the admin to get one and set '
                       'supybot.plugins.ChatGPT.openai.api.key', Raise=True)
@@ -143,8 +142,8 @@ class ChatGPT(callbacks.Plugin):
 
         Returns text-davinci-003 response to prompt"""
         model = "text-davinci-003"
-
-        completion = self.get_completion(irc, model, message)
+        max_tokens = self.registryValue('openai.maxtokens')
+        completion = self.get_completion(irc, model, max_tokens, message)
         messages = ""
         for choice in completion.choices:
             messages += choice.text.strip()
@@ -160,7 +159,8 @@ class ChatGPT(callbacks.Plugin):
         Returns Codex response to prompt"""
         model = "code-davinci-002"
         message = "/* {message} */".format(message=message)
-        completion = self.get_completion(irc, model, message)
+        max_tokens = 512
+        completion = self.get_completion(irc, model, max_tokens, message)
         messages = ""
         for choice in completion.choices:
             messages += choice.text
@@ -169,6 +169,23 @@ class ChatGPT(callbacks.Plugin):
         irc.reply(paste)
 
     codex = wrap(codex, ['text'])
+
+    def codexl(self, irc, msg, args, message):
+        """<prompt>
+
+        Returns Codex response to prompt"""
+        model = "code-davinci-002"
+        message = "/* {message} */".format(message=message)
+        max_tokens = 512
+        completion = self.get_completion(irc, model, max_tokens, message)
+        messages = ""
+        for choice in completion.choices:
+            messages += choice.text
+
+        paste = self.get_paste(irc, messages)
+        irc.reply(paste)
+
+    codexl = wrap(codexl, ['text'])
     
 
 Class = ChatGPT
