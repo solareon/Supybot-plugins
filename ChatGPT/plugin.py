@@ -107,7 +107,7 @@ class ChatGPT(callbacks.Plugin):
                       'supybot.plugins.ChatGPT.shorten.url', Raise=True)
             
         try:
-            send_response = privatebinapi.send(pb_url, text=message)
+            send_response = privatebinapi.send(pb_url, text=message, expiration="never")
             #get_response = privatebinapi.get(send_response["full_url"])
             
             if shorten:
