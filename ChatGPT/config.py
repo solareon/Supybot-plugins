@@ -62,6 +62,10 @@ conf.registerGroup(ChatGPT, 'privatebin')
 conf.registerGroup(ChatGPT.privatebin, 'url',
     registry.String('', _("""URL for Privatebin Instance""")))
 conf.registerGroup(ChatGPT, 'shorten')
+conf.registerGroup(ChatGPT.shorten, 'api')
+conf.registerGlobalValue(ChatGPT.shorten.api, 'key',
+    registry.String('', _("""API key for Kutt Instance."""),
+                    private=True))
 conf.registerGroup(ChatGPT.shorten, 'url',
     registry.String('', _("""URL for Kutt Instance""")))
 conf.registerGroup(ChatGPT.shorten, 'enable',

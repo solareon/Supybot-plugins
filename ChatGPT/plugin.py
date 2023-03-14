@@ -31,6 +31,7 @@
 import re
 import openai
 import privatebinapi
+import requests
 from datetime import datetime, timedelta
 
 from supybot import utils, plugins, ircutils, callbacks
@@ -93,7 +94,8 @@ class ChatGPT(callbacks.Plugin):
 
     def get_paste(self, irc, message):
         shorten = self.registryValue('shorten.enable')
-        shorten_url = self.registryValue('shorten.url')
+        shorten_url = self.registryValue('shorten.url')+"/api/v2/links"
+        shorten_api = self.registryValue('shorten.api.key')
         pb_url = self.registryValue('privatebin.url')
 
         if not pb_url:
@@ -104,12 +106,15 @@ class ChatGPT(callbacks.Plugin):
             irc.error('Missing Kutt URL, ask the admin to get one and set '
                       'supybot.plugins.ChatGPT.shorten.url', Raise=True)
             
-        try
+        try:
             send_response = privatebinapi.send(pb_url, text=message)
             get_response = privatebinapi.get(send_response["full_url"])
             
             if shorten:
-                short = requests.shorten(get_response)
+                payload = {"target": get_response,"expire_in": "none"}
+                headers = {'X-API-KEY': shorten_api,'Content-Type': 'application/json'}
+                response = requests.post(shorten_url, headers=headers, json=payload).json()
+                short = response['link']
                 return short
             return get_response
         except Exception:
@@ -160,7 +165,8 @@ class ChatGPT(callbacks.Plugin):
             messages += choice.text.strip()
         messages = messages.replace('\n', ' ')
 
-        self.send_reply(irc, messages)
+        paste = self.get_paste(irc, message)
+        irc.reply(paste)
 
     codex = wrap(codex, ['text'])
     
