@@ -158,7 +158,7 @@ class ChatGPT(callbacks.Plugin):
 
         Returns Codex response to prompt"""
         model = "code-davinci-002"
-        message = "/* {message} */".format(message=message)
+        
         max_tokens = 512
         completion = self.get_completion(irc, model, max_tokens, message)
         messages = ""
@@ -175,7 +175,7 @@ class ChatGPT(callbacks.Plugin):
 
         Returns Codex response to prompt"""
         model = "code-davinci-002"
-        message = "/* {message} */".format(message=message)
+        
         max_tokens = 512
         completion = self.get_completion(irc, model, max_tokens, message)
         messages = ""
