@@ -111,7 +111,7 @@ class ChatGPT(callbacks.Plugin):
             get_response = privatebinapi.get(send_response["full_url"])
             
             if shorten:
-                payload = {"target": get_response,"expire_in": "none"}
+                payload = {"target": get_response}
                 headers = {'X-API-KEY': shorten_api,'Content-Type': 'application/json'}
                 response = requests.post(shorten_url, headers=headers, json=payload).json()
                 short = response['link']
