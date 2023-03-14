@@ -58,5 +58,13 @@ conf.registerGlobalValue(ChatGPT.openai.api, 'key',
                     private=True))
 conf.registerGlobalValue(ChatGPT.openai, 'maxtokens',
     registry.Integer(1024, _("""Maximum number of tokens for single request""")))
+conf.registerGroup(ChatGPT, 'privatebin')
+conf.registerGroup(ChatGPT.privatebin, 'url',
+    registry.String('', _("""URL for Privatebin Instance""")))
+conf.registerGroup(ChatGPT, 'shorten')
+conf.registerGroup(ChatGPT.shorten, 'url',
+    registry.String('', _("""URL for Kutt Instance""")))
+conf.registerGroup(ChatGPT.shorten, 'enable',
+    registry.Boolean(True, _("""Shorten URLs?""")))
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

@@ -30,6 +30,7 @@
 
 import re
 import openai
+import privatebinapi
 from datetime import datetime, timedelta
 
 from supybot import utils, plugins, ircutils, callbacks
@@ -75,17 +76,13 @@ class ChatGPT(callbacks.Plugin):
 
     def send_reply(self, irc, message):
         if len(message) > 400:
-            last_space_index = message[:400].rfind(" ")
-            last_dot_index = message[:400].rfind(".")
-            split_index = max(last_space_index, last_dot_index)
+            split_index = message[:400].rfind(".")
             if split_index == -1: # If no space or dot found before the 400th character
                 split_index = 399 # Split at the 399th character
             irc.reply(message[:split_index])
             remaining_message = message[split_index:]
             while len(remaining_message) > 400:
-                last_space_index = message[:400].rfind(" ")
-                last_dot_index = message[:400].rfind(".")
-                split_index = max(last_space_index, last_dot_index)
+                split_index = message[:400].rfind(".")
                 if split_index == -1:
                     split_index = 399
                 irc.reply(remaining_message[:split_index], prefixNick=False)
@@ -93,6 +90,31 @@ class ChatGPT(callbacks.Plugin):
             irc.reply(remaining_message, prefixNick=False)
         else:
             irc.reply(message)
+
+    def get_paste(self, irc, message):
+        shorten = self.registryValue('shorten.enable')
+        shorten_url = self.registryValue('shorten.url')
+        pb_url = self.registryValue('privatebin.url')
+
+        if not pb_url:
+            irc.error('Missing Privatebin URL, ask the admin to get one and set '
+                      'supybot.plugins.ChatGPT.privatebin.url', Raise=True)
+
+        if shorten and not shorten_url:
+            irc.error('Missing Kutt URL, ask the admin to get one and set '
+                      'supybot.plugins.ChatGPT.shorten.url', Raise=True)
+            
+        try
+            send_response = privatebinapi.send(pb_url, text=message)
+            get_response = privatebinapi.get(send_response["full_url"])
+            
+            if shorten:
+                short = requests.shorten(get_response)
+                return short
+            return get_response
+        except Exception:
+            raise
+
 
     def chatgpt(self, irc, msg, args, message):
         """<prompt>
@@ -126,6 +148,21 @@ class ChatGPT(callbacks.Plugin):
 
     gpt3 = wrap(gpt3, ['text'])
 
+    def codex(self, irc, msg, args, message):
+        """<prompt>
+
+        Returns Codex response to prompt"""
+        model = "code-davinci-002"
+
+        completion = self.get_completion(irc, model, message)
+        messages = ""
+        for choice in completion.choices:
+            messages += choice.text.strip()
+        messages = messages.replace('\n', ' ')
+
+        self.send_reply(irc, messages)
+
+    codex = wrap(codex, ['text'])
     
 
 Class = ChatGPT
