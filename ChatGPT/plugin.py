@@ -116,6 +116,7 @@ class ChatGPT(callbacks.Plugin):
                 response = requests.post(shorten_url, headers=headers, json=payload).json()
                 short = response['link']
                 return short
+            
             return get_response
         except Exception:
             raise
@@ -163,9 +164,9 @@ class ChatGPT(callbacks.Plugin):
         messages = ""
         for choice in completion.choices:
             messages += choice.text.strip()
-        messages = messages.replace('\n', ' ')
+        #messages = messages.replace('\n', ' ')
 
-        paste = self.get_paste(irc, message)
+        paste = self.get_paste(irc, messages)
         irc.reply(paste)
 
     codex = wrap(codex, ['text'])
