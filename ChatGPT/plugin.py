@@ -164,7 +164,7 @@ class ChatGPT(callbacks.Plugin):
         messages = ""
         for choice in completion.choices:
             messages += choice.text
-        highlight = "syntaxhighlighting"
+        highlight = "markdown"
         paste = self.get_paste(irc, highlight, messages)
         irc.reply(paste)
 
@@ -181,7 +181,7 @@ class ChatGPT(callbacks.Plugin):
         messages = ""
         for choice in completion.choices:
             messages += choice.text
-        highlight = "syntaxhighlighting"
+        highlight = "markdown"
         paste = self.get_paste(irc, highlight, messages)
         irc.reply(paste)
 
