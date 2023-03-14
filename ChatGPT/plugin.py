@@ -77,18 +77,18 @@ class ChatGPT(callbacks.Plugin):
 
     def send_reply(self, irc, message):
         if len(message) > 400:
-            split_index = message[:400].rfind(".")
+            split_index = message[:400].rfind(".")+1
             if split_index == -1: # If no space or dot found before the 400th character
                 split_index = 399 # Split at the 399th character
-            irc.reply(message[:split_index])
+            irc.reply(message[:split_index].strip())
             remaining_message = message[split_index:]
             while len(remaining_message) > 400:
-                split_index = message[:400].rfind(".")
+                split_index = message[:400].rfind(".")+1
                 if split_index == -1:
                     split_index = 399
-                irc.reply(remaining_message[:split_index], prefixNick=False)
+                irc.reply(remaining_message[:split_index].strip(), prefixNick=False)
                 remaining_message = remaining_message[split_index:]
-            irc.reply(remaining_message, prefixNick=False)
+            irc.reply(remaining_message.strip(), prefixNick=False)
         else:
             irc.reply(message)
 
