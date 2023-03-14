@@ -91,7 +91,7 @@ class ChatGPT(callbacks.Plugin):
         else:
             irc.reply(message)
 
-    def get_paste(self, irc, message):
+    def get_paste(self, irc, highlight, message):
         shorten = self.registryValue('shorten.enable')
         shorten_url = self.registryValue('shorten.url')+"/api/v2/links"
         shorten_api = self.registryValue('shorten.api.key')
@@ -106,7 +106,7 @@ class ChatGPT(callbacks.Plugin):
                       'supybot.plugins.ChatGPT.shorten.url', Raise=True)
             
         try:
-            send_response = privatebinapi.send(pb_url, text=message, expiration="never")
+            send_response = privatebinapi.send(pb_url, text=message, expiration="never", formatting=highlight)
             #get_response = privatebinapi.get(send_response["full_url"])
             
             if shorten:
@@ -164,8 +164,8 @@ class ChatGPT(callbacks.Plugin):
         messages = ""
         for choice in completion.choices:
             messages += choice.text
-
-        paste = self.get_paste(irc, messages)
+        highlight = "syntaxhighlighting"
+        paste = self.get_paste(irc, highlight, messages)
         irc.reply(paste)
 
     codex = wrap(codex, ['text'])
@@ -181,8 +181,8 @@ class ChatGPT(callbacks.Plugin):
         messages = ""
         for choice in completion.choices:
             messages += choice.text
-
-        paste = self.get_paste(irc, messages)
+        highlight = "syntaxhighlighting"
+        paste = self.get_paste(irc, highlight, messages)
         irc.reply(paste)
 
     codexl = wrap(codexl, ['text'])
