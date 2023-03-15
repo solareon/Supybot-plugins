@@ -78,7 +78,7 @@ class Stocks(callbacks.Plugin):
             irc.errorInvalid('symbol', symbol, Raise=True)
 
         # Get data from API
-        data = yf.Ticker(symbol)
+        data = yf.Ticker(symbol).fast_info
 
         if not data:
             irc.error("{symbol}: An error occurred.".format(symbol=symbol), Raise=True)
