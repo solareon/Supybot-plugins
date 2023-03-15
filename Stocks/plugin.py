@@ -89,13 +89,13 @@ class Stocks(callbacks.Plugin):
         price = data.last_price
         close = data.previous_close
         currency = data.currency
-        day_high = data.day_high
-        day_low = data.day_low
-        change = float(price - close)
-        change_percent = float(change / close)
+        day_high = round(data.day_high,2)
+        day_low = round(data.day_low,2)
+        change = round(price - close,2)
+        change_percent = round(change / close * 100, 2)
 
         message = (
-            '{symbol} {currency}{price:g} '
+            '{symbol} {currency} {price:g} '
         )
 
         if change >= 0.0:
