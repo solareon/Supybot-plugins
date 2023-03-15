@@ -120,23 +120,23 @@ class Stocks(callbacks.Plugin):
         
         if response.status_code == 200:
             data = response.json()['data']
-            quotes = {crypto: data[crypto]['quote'][fiat] for crypto in cryptos}
-        
+            quotes = {cryptos[i]: data[i]['quote'][fiat] for i in range(len(cryptos))}
+            
             messages = []
             for crypto, quote in quotes.items():
-                crypto_name = data[crypto]['name']
+                crypto_name = data[cryptos.index(crypto)]['name']
                 price = quote['price']
                 change_percent = quote['percent_change_24h']
-                change = round(price * (change_percent / 100), 2)
+                change = round(price * (change_percent / 100), 2)       
 
                 message = (
                     '{crypto}:{crypto_name} ${price:g}'
-                )
+                )       
 
                 if change >= 0.0:
                     message += ircutils.mircColor('\u25b2 {change:g} ({change_percent:g}%)', 'green')
                 else:
-                    message += ircutils.mircColor('\u25bc {change:g} ({change_percent:g}%)', 'red')
+                    message += ircutils.mircColor('\u25bc {change:g} ({change_percent:g}%)', 'red')     
 
                 message = message.format(
                     crypto=ircutils.bold(crypto),
@@ -145,12 +145,13 @@ class Stocks(callbacks.Plugin):
                     change=change,
                     change_percent=round(change_percent, 2),
                 )
-
+                
                 messages.append(message)
         else:
-            irc.error("{cryptos}: An error occurred. Response code: {response}".format(cryptos=cryptos,response=response.status_code), Raise=True)
+            irc.error("{cryptos}: An error occurred. Response code: {response}".format(cryptos=cryptos,response=response.status_code), Raise=True)      
 
-        return messages
+        return messages     
+
     
     def get_forexs(self, irc, session, forex1, forex2):
         # Do regex checking on symbol to ensure it's valid
