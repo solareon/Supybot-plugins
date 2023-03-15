@@ -87,7 +87,7 @@ class Stocks(callbacks.Plugin):
             irc.error("{symbol}: {message}".format(symbol=symbol, message=data['Error Message']), Raise=True)
 
         price = data.last_price
-        close = data.previousClose
+        close = data.previous_close
         currency = data.currency
         day_high = data.day_high
         day_low = data.day_low
