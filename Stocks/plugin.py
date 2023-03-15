@@ -148,7 +148,7 @@ class Stocks(callbacks.Plugin):
 
                 messages.append(message)
         else:
-            irc.error("{crypto}: An error occurred. Response code: {response}".format(cryptos=cryptos,response=response.status_code), Raise=True)
+            irc.error("{cryptos}: An error occurred. Response code: {response}".format(cryptos=cryptos,response=response.status_code), Raise=True)
 
         return messages
     
