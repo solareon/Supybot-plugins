@@ -83,8 +83,8 @@ class Stocks(callbacks.Plugin):
         if not data:
             irc.error("{symbol}: An error occurred.".format(symbol=symbol), Raise=True)
 
-        if 'Error Message' in data.keys():
-            irc.error("{symbol}: {message}".format(symbol=symbol, message=data['Error Message']), Raise=True)
+        #if 'Error Message' in data.keys():
+        #    irc.error("{symbol}: {message}".format(symbol=symbol, message=data['Error Message']), Raise=True)
 
         price = data.last_price
         close = data.previousClose
