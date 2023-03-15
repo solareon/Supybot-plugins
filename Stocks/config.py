@@ -50,16 +50,9 @@ conf.registerGroup(Stocks.alphavantage, 'api')
 conf.registerGlobalValue(Stocks.alphavantage.api, 'key',
     registry.String('', _("""API key for alphavantage.co."""),
                     private=True))
-conf.registerGlobalValue(Stocks.alphavantage, 'maxsymbols',
+conf.registerGlobalValue(Stocks, 'maxsymbols',
     registry.Integer(10, _("""Maximum number of symbols for single request""")))
-conf.registerGlobalValue(Stocks.alphavantage, 'cryptofiat',
-    registry.String('', _("""ISO Currency code for Cryptocurrent Pairs""")))
-conf.registerGroup(Stocks, 'coinmarketcap')
-conf.registerGroup(Stocks.coinmarketcap, 'api')
-conf.registerGlobalValue(Stocks.coinmarketcap.api, 'key',
-    registry.String('', _("""API key for coinmarketcap.com."""),
-                    private=True))
-conf.registerGlobalValue(Stocks.coinmarketcap, 'fiat',
+conf.registerGlobalValue(Stocks, 'cryptofiat',
     registry.String('', _("""ISO Currency code for Cryptocurrency to Fiat Pairs""")))
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
