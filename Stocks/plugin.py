@@ -23,6 +23,7 @@
 
 import re
 import requests
+import yfinance as yf
 from datetime import datetime, timedelta
 
 from supybot import utils, plugins, ircutils, callbacks
@@ -39,15 +40,9 @@ class Stocks(callbacks.Plugin):
     """Provides access to stocks data"""
     threaded = True
 
-    def get_symbol(self, irc, session, symbol):
-        api_key = self.registryValue('alphavantage.api.key')
-        if not api_key:
-            irc.error('Missing API key, ask the admin to get one and set '
-                      'supybot.plugins.Stocks.alphavantage.api.key', Raise=True)
-
+    def get_symbol(self, irc, symbol):
         try:
-            return session.get('https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}'.format(symbol=symbol,
-                api_key=api_key)).json()
+            return yf.Ticker(symbol)
         except Exception:
             raise
 
@@ -77,13 +72,13 @@ class Stocks(callbacks.Plugin):
             raise
 
 
-    def get_stocks(self, irc, session, symbol):
+    def get_stocks(self, irc, symbol):
         # Do regex checking on symbol to ensure it's valid
         if not re.match(r'^[\w^=:.\-]{1,10}$', symbol):
             irc.errorInvalid('symbol', symbol, Raise=True)
 
         # Get data from API
-        data = self.get_symbol(irc, session, symbol)
+        data = self.get_symbol(irc, symbol)
 
         if not data:
             irc.error("{symbol}: An error occurred.".format(symbol=symbol), Raise=True)
@@ -91,19 +86,16 @@ class Stocks(callbacks.Plugin):
         if 'Error Message' in data.keys():
             irc.error("{symbol}: {message}".format(symbol=symbol, message=data['Error Message']), Raise=True)
 
-        symbol = data['Global Quote']['01. symbol']
-        # open = data['Global Quote']['02. open']
-        # high = data['Global Quote']['03. high']
-        # low = data['Global Quote']['04. low']
-        price = float(data['Global Quote']['05. price'])
-        # volume = data['Global Quote']['06. volume']
-        # latest_trading_day = data['Global Quote']['07. latest trading day']
-        # previous_close = data['Global Quote']['08. previous close']
-        change = float(data['Global Quote']['09. change'])
-        change_percent = float(data['Global Quote']['10. change percent'].strip('%'))
+        price = data.last_price
+        close = data.previousClose
+        currency = data.currency
+        day_high = data.day_high
+        day_low = data.day_low
+        change = float(price - close)
+        change_percent = float(change / close)
 
         message = (
-            '{symbol} {price:g} '
+            '{symbol} {currency}{price:g} '
         )
 
         if change >= 0.0:
@@ -111,11 +103,16 @@ class Stocks(callbacks.Plugin):
         else:
             message += ircutils.mircColor('\u25bc {change:g} ({change_percent:g}%)', 'red')
 
+        message += " High: {day_high} Low: {day_low}"
+
         message = message.format(
             symbol=ircutils.bold(symbol),
+            currency=currency,
             price=price,
             change=change,
             change_percent=change_percent,
+            day_high=day_high,
+            day_low=day_low,
         )
 
         return message
@@ -203,8 +200,7 @@ class Stocks(callbacks.Plugin):
         if count_symbols > max_symbols:
             irc.error("Too many symbols. Maximum count {}. Your count: {}".format(max_symbols, count_symbols), Raise=True)
 
-        with requests.Session() as session:
-            messages = map(lambda symbol: self.get_stocks(irc, session, symbol), symbols)
+        messages = map(lambda symbol: self.get_stocks(irc, symbol), symbols)
 
         irc.replies(messages, joiner=' | ')
 
