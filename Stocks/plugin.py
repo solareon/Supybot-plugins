@@ -114,7 +114,7 @@ class Stocks(callbacks.Plugin):
         try:
             params = {'symbol': crypto, 'convert': fiat}
             headers = {'X-CMC_PRO_API_KEY': api_key}
-            response = requests.post('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', headers=headers, params=params)
+            response = requests.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', headers=headers, params=params)
         except Exception:
             raise
         
