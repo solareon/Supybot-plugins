@@ -46,25 +46,11 @@ class Stocks(callbacks.Plugin):
         except Exception:
             raise
 
-    def get_crypto(self, irc, session, symbol):
-        api_key = self.registryValue('alphavantage.api.key')
-        fiat = self.registryValue('alphavantage.cryptofiat')
-        if not api_key:
-            irc.error('Missing API key, ask the admin to get one and set '
-                      'supybot.plugins.Stocks.alphavantage.api.key', Raise=True)
-
-        try:
-            return session.get('https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency={symbol}&to_currency={fiat}&apikey={api_key}'.format(symbol=symbol,fiat=fiat,
-                api_key=api_key)).json()
-        except Exception:
-            raise
-
     def get_forex(self, irc, session, symbol1, symbol2):
         api_key = self.registryValue('alphavantage.api.key')
         if not api_key:
             irc.error('Missing API key, ask the admin to get one and set '
                       'supybot.plugins.Stocks.alphavantage.api.key', Raise=True)
-
         try:
             return session.get('https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency={symbol1}&to_currency={symbol2}&apikey={api_key}'.format(symbol1=symbol1,symbol2=symbol2,
                 api_key=api_key)).json()
@@ -117,39 +103,54 @@ class Stocks(callbacks.Plugin):
 
         return message
     
-    def get_cryptos(self, irc, session, crypto):
-        # Do regex checking on symbol to ensure it's valid
-        if not re.match(r'^[\w^=:.\-]{1,10}$', crypto):
-            irc.errorInvalid('crypto', crypto, Raise=True)
+    def get_cryptos(self, irc, cryptos):
+        api_key = self.registryValue('coinmarketcap.api.key')
+        fiat = self.registryValue('coinmarketcap.fiat')
+        if not api_key:
+            irc.error('Missing API key, ask the admin to get one and set '
+                      'supybot.plugins.Stocks.coinmarketcap.api.key', Raise=True)
 
-        # Get data from API
-        data = self.get_crypto(irc, session, crypto)
+        crypto = ','.join(cryptos)
+        try:
+            params = {'symbol': crypto, 'convert': fiat}
+            headers = {'X-CMC_PRO_API_KEY': api_key}
+            response = requests.post('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', headers=headers, params=params)
+        except Exception:
+            raise
+        
+        if response.status_code == 200:
+            data = response.json()['data']
+            quotes = {crypto: data[crypto]['quote'][fiat] for crypto in cryptos}
+        
+            messages = []
+            for crypto, quote in quotes.items():
+                crypto_name = data[crypto]['name']
+                price = quote['price']
+                change_percent = quote['percent_change_24h']
+                change = round(price * (change_percent / 100), 2)
 
-        if not data:
-            irc.error("{crypto}: An error occurred.".format(crypto=crypto), Raise=True)
+                message = (
+                    '{crypto}:{crypto_name} ${price:g}'
+                )
 
-        if 'Error Message' in data.keys():
-            irc.error("{crypto}: {message}".format(crypto=crypto, message=data['Error Message']), Raise=True)
+                if change >= 0.0:
+                    message += ircutils.mircColor('\u25b2 {change:g} ({change_percent:g}%)', 'green')
+                else:
+                    message += ircutils.mircColor('\u25bc {change:g} ({change_percent:g}%)', 'red')
 
-        crypto_symbol = data['Realtime Currency Exchange Rate']['1. From_Currency Code']
-        crypto = data['Realtime Currency Exchange Rate']['2. From_Currency Name']
-        fiat_symbol = data['Realtime Currency Exchange Rate']['3. To_Currency Code']
-        fiat = data['Realtime Currency Exchange Rate']['4. To_Currency Name']
-        price = float(data['Realtime Currency Exchange Rate']['5. Exchange Rate'])
+                message = message.format(
+                    crypto=ircutils.bold(crypto),
+                    crypto_name=crypto_name,
+                    price=price,
+                    change=change,
+                    change_percent=round(change_percent, 2),
+                )
 
-        message = (
-            '{crypto_symbol}:{crypto} to {fiat_symbol}:{fiat} ${price:g}'
-        )
+                messages.append(message)
+        else:
+            irc.error("{crypto}: An error occurred. Response code: {response}".format(cryptos=cryptos,response=response.status_code), Raise=True)
 
-        message = message.format(
-            crypto_symbol=ircutils.bold(crypto_symbol),
-            crypto=crypto,
-            fiat_symbol=ircutils.bold(fiat_symbol),
-            fiat=fiat,
-            price=price,
-        )
-
-        return message
+        return messages
     
     def get_forexs(self, irc, session, forex1, forex2):
         # Do regex checking on symbol to ensure it's valid
@@ -216,8 +217,7 @@ class Stocks(callbacks.Plugin):
         if count_symbols > max_symbols:
             irc.error("Too many symbols. Maximum count {}. Your count: {}".format(max_symbols, count_symbols), Raise=True)
 
-        with requests.Session() as session:
-            messages = map(lambda crypto: self.get_cryptos(irc, session, crypto), cryptos)
+        messages = self.get_cryptos(irc, cryptos)
 
         irc.replies(messages, joiner=' | ')
 
