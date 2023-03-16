@@ -59,7 +59,7 @@ class Stocks(callbacks.Plugin):
 
         # Get data from API
         ticker = Ticker(symbol)
-        data = ticker.summary_detail
+        data = ticker.price
 
         if not data:
             irc.error("{symbol}: An error occurred.".format(symbol=symbol), Raise=True)
@@ -67,16 +67,17 @@ class Stocks(callbacks.Plugin):
         if 'error' in data.keys():
             irc.error("{symbol}: {message}".format(symbol=symbol, message=data['error']['description']), Raise=True)
 
+        short_name = data[symbol]['shortName']
         price = data[symbol]['regularMarketPrice']
         close = data[symbol]['regularMarketPreviousClose']
-        currency = data[symbol]['currency']
+        currency = data[symbol]['currencySymbol']
         day_high = round(data[symbol]['regularMarketDayHigh'],2)
         day_low = round(data[symbol]['regularMarketDayLow'],2)
         change = round(price - close,2)
         change_percent = round(change / close * 100, 2)
 
         message = (
-            '{symbol} {currency} {price:g} '
+            '{symbol} {currency}{price:g} '
         )
 
         if change >= 0.0:
