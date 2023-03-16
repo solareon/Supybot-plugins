@@ -178,7 +178,6 @@ class Stocks(callbacks.Plugin):
 
         irc.reply(message)
 
-    @wrap()
     def sindex(self, irc, msg, args):
         """takes no arguments
 
@@ -188,6 +187,8 @@ class Stocks(callbacks.Plugin):
         messages = map(lambda symbol: self.get_stocks(irc, symbol), symbols)
 
         irc.replies(messages, joiner=' | ')
+
+    sindex = wrap(sindex)
 
 Class = Stocks
 
