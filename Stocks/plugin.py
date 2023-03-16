@@ -134,6 +134,7 @@ class Stocks(callbacks.Plugin):
 
         return message
 
+    @wrap([many('something')])
     def stock(self, irc, msg, args, symbols):
         """<symbol> [<symbol> [<symbol> ...]]
 
@@ -149,8 +150,7 @@ class Stocks(callbacks.Plugin):
 
         irc.replies(messages, joiner=' | ')
 
-    stock = wrap(stock, [many('something')])
-
+    @wrap([many('something')])
     def crypto(self, irc, msg, args, cryptos):
         """<crypto> [<crypto> [<crypto> ...]]
 
@@ -167,8 +167,7 @@ class Stocks(callbacks.Plugin):
 
         irc.replies(messages, joiner=' | ')
 
-    crypto = wrap(crypto, [many('something')])
-
+    @wrap(["somethingWithoutSpaces", "somethingWithoutSpaces"])
     def forex(self, irc, msg, args, symbol1, symbol2):
         """<symbol> <symbol>
 
@@ -178,9 +177,8 @@ class Stocks(callbacks.Plugin):
             message = self.get_forexs(irc, session, symbol1, symbol2)
 
         irc.reply(message)
-    
-    forex = wrap(forex, ['somethingWithoutSpaces', 'somethingWithoutSpaces'])
 
+    @wrap()
     def sindex(self, irc, msg, args):
         """takes no arguments
 
@@ -190,8 +188,6 @@ class Stocks(callbacks.Plugin):
         messages = map(lambda symbol: self.get_stocks(irc, symbol), symbols)
 
         irc.replies(messages, joiner=' | ')
-
-    sindex = wrap(sindex)
 
 Class = Stocks
 
