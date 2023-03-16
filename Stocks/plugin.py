@@ -77,7 +77,7 @@ class Stocks(callbacks.Plugin):
         change_percent = round(change / close * 100, 2)
 
         message = (
-            '{symbol} {currency}{price:g} '
+            '{symbol} : {short_name} {currency}{price:g} '
         )
 
         if change >= 0.0:
@@ -89,6 +89,7 @@ class Stocks(callbacks.Plugin):
 
         message = message.format(
             symbol=ircutils.bold(symbol),
+            short_name=short_name,
             currency=currency,
             price=price,
             change=change,
