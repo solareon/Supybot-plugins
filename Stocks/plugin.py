@@ -184,14 +184,26 @@ class Stocks(callbacks.Plugin):
     def sindex(self, irc, msg, args):
         """takes no arguments
 
-        Returns 6 indexes for world markets"""
+        Returns indexes for us markets"""
 
-        symbols = ['^DJI', '^GSPC', '^IXIC', '^RUT', '^FTSE', '^N225']
+        symbols = ['^DJI', '^GSPC', '^IXIC', '^RUT']
         messages = map(lambda symbol: self.get_stocks(irc, symbol), symbols)
 
         irc.replies(messages, joiner=' | ')
 
     sindex = wrap(sindex)
+
+    def findex(self, irc, msg, args):
+        """takes no arguments
+
+        Returns indexes for world markets"""
+
+        symbols = ['^GDAXI', '^FCHI', '^FTSE', '^N225']
+        messages = map(lambda symbol: self.get_stocks(irc, symbol), symbols)
+
+        irc.replies(messages, joiner=' | ')
+
+    findex = wrap(findex)
 
 Class = Stocks
 
