@@ -23,7 +23,7 @@
 
 import re
 import requests
-import yfinance as yf
+from yahooquery import Ticker
 from datetime import datetime, timedelta
 
 from supybot import utils, plugins, ircutils, callbacks
@@ -58,19 +58,20 @@ class Stocks(callbacks.Plugin):
             irc.errorInvalid('symbol', symbol, Raise=True)
 
         # Get data from API
-        data = yf.Ticker(symbol).fast_info
+        ticker = Ticker(symbol)
+        data = ticker.summary_detail
 
         if not data:
             irc.error("{symbol}: An error occurred.".format(symbol=symbol), Raise=True)
 
-        if 'Error Message' in data.keys():
-            irc.error("{symbol}: {message}".format(symbol=symbol, message=data['Error Message']), Raise=True)
+        if 'error' in data.keys():
+            irc.error("{symbol}: {message}".format(symbol=symbol, message=data['error']['description']), Raise=True)
 
-        price = data.last_price
-        close = data.previous_close
-        currency = data.currency
-        day_high = round(data.day_high,2)
-        day_low = round(data.day_low,2)
+        price = data[symbol]['regularMarketPrice']
+        close = data[symbol]['regularMarketPreviousClose']
+        currency = data[symbol]['currency']
+        day_high = round(data[symbol]['regularMarketDayHigh'],2)
+        day_low = round(data[symbol]['regularMarketDayLow'],2)
         change = round(price - close,2)
         change_percent = round(change / close * 100, 2)
 
@@ -183,7 +184,7 @@ class Stocks(callbacks.Plugin):
 
         Returns 6 indexes for world markets"""
 
-        symbols = ['^DJIA', '^GSPC', '^IXIC', '^RUT', '^FTSE', '^N225']
+        symbols = ['^DJI', '^GSPC', '^IXIC', '^RUT', '^FTSE', '^N225']
         messages = map(lambda symbol: self.get_stocks(irc, symbol), symbols)
 
         irc.replies(messages, joiner=' | ')
