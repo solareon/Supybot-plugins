@@ -75,6 +75,8 @@ class Stocks(callbacks.Plugin):
             price = data[symbol]['postMarketPrice']
         elif market_state == 'PRE':
             price = data[symbol]['preMarketPrice']
+        else:
+            price = data[symbol]['regularMarketPrice']
 
         short_name = data[symbol]['shortName']
         close = data[symbol]['regularMarketPreviousClose']
@@ -93,7 +95,9 @@ class Stocks(callbacks.Plugin):
         else:
             message += ircutils.mircColor('\u25bc {change:g} ({change_percent:g}%)', 'red')
 
-        message += " High: {day_high} Low: {day_low} State: {market_state}"
+        message += " High: {day_high} Low: {day_low}"
+        if market_state is not None:
+            message += " State: {market_state}"
 
         message = message.format(
             symbol=ircutils.bold(symbol),
