@@ -75,10 +75,10 @@ class Stocks(callbacks.Plugin):
             market_state = 'Open'
         elif market_state == 'POST':
             price = data[symbol]['postMarketPrice']
-            market_state = 'Postmarket'
+            market_state = 'Post-market'
         elif market_state == 'PRE':
             price = data[symbol]['preMarketPrice']
-            market_state = 'Premarket'
+            market_state = 'Pre-market'
         else:
             price = data[symbol]['regularMarketPrice']
 
