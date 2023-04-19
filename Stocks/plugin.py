@@ -68,8 +68,9 @@ class Stocks(callbacks.Plugin):
             irc.error("{symbol}: {message}".format(symbol=symbol, message=data['error']['description']), Raise=True)
 
         market_state = data[symbol]['marketState']
+        quote_type = data[symbol]['quoteType']
 
-        if market_state == 'REGULAR':
+        if quote_type == 'INDEX' or market_state == 'REGULAR':
             price = data[symbol]['regularMarketPrice']
         elif market_state == 'POST':
             price = data[symbol]['postMarketPrice']
@@ -96,7 +97,7 @@ class Stocks(callbacks.Plugin):
             message += ircutils.mircColor('\u25bc {change:g} ({change_percent:g}%)', 'red')
 
         message += " High: {day_high} Low: {day_low}"
-        if market_state is not None:
+        if quote_type != 'INDEX':
             message += " State: {market_state}"
 
         message = message.format(
