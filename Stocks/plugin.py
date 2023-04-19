@@ -72,10 +72,13 @@ class Stocks(callbacks.Plugin):
 
         if quote_type == 'INDEX' or market_state == 'REGULAR':
             price = data[symbol]['regularMarketPrice']
+            market_state = 'Open'
         elif market_state == 'POST':
             price = data[symbol]['postMarketPrice']
+            market_state = 'Postmarket'
         elif market_state == 'PRE':
             price = data[symbol]['preMarketPrice']
+            market_state = 'Premarket'
         else:
             price = data[symbol]['regularMarketPrice']
 
@@ -98,7 +101,7 @@ class Stocks(callbacks.Plugin):
 
         message += " High: {day_high} Low: {day_low}"
         if quote_type != 'INDEX':
-            message += " State: {market_state}"
+            message += " {market_state}"
 
         message = message.format(
             symbol=ircutils.bold(symbol),
