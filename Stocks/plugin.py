@@ -59,34 +59,35 @@ class Stocks(callbacks.Plugin):
 
         # Get data from API
         ticker = Ticker(symbol)
-        data = ticker.price
 
-        if not data:
+        if not ticker.price:
             irc.error("{symbol}: An error occurred.".format(symbol=symbol), Raise=True)
 
-        if 'error' in data.keys():
-            irc.error("{symbol}: {message}".format(symbol=symbol, message=data['error']['description']), Raise=True)
+        if 'error' in ticker.price.keys():
+            irc.error("{symbol}: {message}".format(symbol=symbol, message=ticker.price['error']['description']), Raise=True)
+            
+        print("Ticker price data:", ticker.price)
 
-        market_state = data[symbol]['marketState']
-        quote_type = data[symbol]['quoteType']
+        market_state = ticker.price.get('marketState')  # Access 'marketState' from the dictionary
+        quote_type = ticker.price.get('quoteType')  # Access 'quoteType' from the dictionary
 
         if quote_type == 'INDEX' or market_state == 'REGULAR':
-            price = data[symbol]['regularMarketPrice']
+            price = ticker.price.get('regularMarketPrice')
             market_state = 'Open'
         elif market_state == 'POST':
-            price = data[symbol]['postMarketPrice']
+            price = ticker.price.get('postMarketPrice')
             market_state = 'Post-market'
         elif market_state == 'PRE':
-            price = data[symbol]['preMarketPrice']
+            price = ticker.price.get('preMarketPrice')
             market_state = 'Pre-market'
         else:
-            price = data[symbol]['regularMarketPrice']
+            price = ticker.price.get('regularMarketPrice')
 
-        short_name = data[symbol]['shortName']
-        close = data[symbol]['regularMarketPreviousClose']
-        currency = data[symbol]['currencySymbol']
-        day_high = round(data[symbol]['regularMarketDayHigh'],2)
-        day_low = round(data[symbol]['regularMarketDayLow'],2)
+        short_name = ticker.price.get('shortName')
+        close = ticker.price.get('regularMarketPreviousClose')
+        currency = ticker.price.get('currencySymbol')
+        day_high = ticker.price.get('regularMarketDayHigh')
+        day_low = ticker.price.get('regularMarketDayLow')
         change = round(price - close,2)
         change_percent = round(change / close * 100, 2)
 
